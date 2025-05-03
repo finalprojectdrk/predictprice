@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from arima_model import get_prediction
 
 app = FastAPI()
@@ -11,6 +12,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/predict")
-def predict(crop: str = Query(...)):
-    return get_prediction(crop)
+class CropRequest(BaseModel):
+    crop: str
+
+@app.post("/predict")
+def predict(request: CropRequest):
+    return get_prediction(request.crop)
