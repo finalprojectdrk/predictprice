@@ -9,13 +9,20 @@ from datetime import datetime, timedelta
 # FastAPI app setup
 app = FastAPI()
 
-# Middleware to handle cross-origin requests
+origins = [
+    "https://farmerssmarket.com",  # your frontend domain
+    "http://localhost:3000",       # optional, for local development
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://farmerssmarket.com/"],  # Allow all origins for testing purposes, change to ["https://farmerssmarket.com"] for production
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # Pydantic model to receive crop name
 class CropRequest(BaseModel):
