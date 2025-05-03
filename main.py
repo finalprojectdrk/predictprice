@@ -41,9 +41,10 @@ def preprocess_data(records, selected_crop):
     else:
         raise HTTPException(status_code=400, detail="Missing required column: date")
 
-    df['price'] = pd.to_numeric(df['modal_price'], errors='coerce')
-    df = df.dropna(subset=['price', 'date'])
+    # Convert modal_price to ₹/kg assuming modal_price is per quintal
+    df['price'] = pd.to_numeric(df['modal_price'], errors='coerce') / 100.0
 
+    df = df.dropna(subset=['price', 'date'])
     df = df[df['commodity'].str.lower() == selected_crop.lower()]
 
     if df.empty:
@@ -69,16 +70,13 @@ def predict(request: CropRequest):
     selected_crop = request.crop
 
     records = fetch_crop_prices()
-
     df = preprocess_data(records, selected_crop)
-
     model_fit = train_arima_model(df)
-
     predicted_prices = predict_price(model_fit, steps=7)
 
     prediction_result = {
         "crop": selected_crop,
-        "prices": predicted_prices.tolist(),
+        "prices": predicted_prices.tolist(),  # prices now in ₹/kg
         "dates": [(datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
     }
 
