@@ -83,6 +83,6 @@ def predict(request: CropRequest):
     return prediction_result
 
 @app.get("/")
-def read_root():
+def root():
     return {"status": "ok", "message": "PredictPrice API is running"}
 
